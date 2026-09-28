@@ -1,0 +1,15 @@
+agrim/
+.venv/
+__pycache__
+*.pyc
+
+mlflow.db
+mlruns/
+mlartifacts/
+
+
+.env
+.csv
+.dist
+.vscode
+.DS_Store
