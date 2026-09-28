@@ -1,4 +1,4 @@
-agrim/
+dev/
 .venv/
 __pycache__
 *.pyc
@@ -6,7 +6,6 @@ __pycache__
 mlflow.db
 mlruns/
 mlartifacts/
-
 
 .env
 .csv
