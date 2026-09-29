@@ -16,3 +16,13 @@ jobs:
 
         - name: Mock - Configure AWS credentials
           run: echo "aws-configuration Test"
+
+        - name: Mock - Login to Docker
+          run: echo "Docker login"
+
+        - name: Mock - Build Docker Image
+          run : echo "Docker build"
+
+        - name: Mock - Push image to ECR
+          id : build
+          run : echo "Docker push"
