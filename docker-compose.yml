@@ -1,0 +1,36 @@
+services:
+
+  mlflow:
+    image: agrim-mlops:latest
+    container_name: agrim-mlflow
+
+    environment:
+      MLFLOW_SERVER_ALLOWED_HOSTS: "mlflow:5000,localhost:5000,127.0.0.1:5000,host.docker.internal:5000"
+
+    command: >
+      mlflow server
+      --host 0.0.0.0
+      --port 5000
+      --backend-store-uri sqlite:////app/mlflow.db
+      --default-artifact-root /app/mlartifacts
+
+    volumes:
+      - ./mlflow.db:/app/mlflow.db
+      - ./mlartifacts:/app/mlartifacts
+
+    ports:
+      - "5000:5000"
+
+
+  api:
+    image: agrim-mlops:latest
+    container_name: agrim-mlops
+
+    environment:
+      MLFLOW_TRACKING: http://mlflow:5000
+
+    ports:
+      - "8080:8000"
+
+    depends_on:
+      - mlflow

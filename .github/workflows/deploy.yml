@@ -1,4 +1,4 @@
-name : Mock Deploy Pipeline (Test)
+name: MLOps CI/CD Pipeline
 
 on:
   push:
@@ -6,35 +6,42 @@ on:
   workflow_dispatch:
 
 jobs:
-    mock-build:
-      runs-on: ubuntu-latest
-      outputs:
-        image: ${{steps.build.outputs.image}}
-      steps:
-        - name: Checkout Code
-          uses: actions/checkout@v4
 
-        - name: Mock - Configure AWS credentials
-          run: echo "aws-configuration Test"
+  build-and-push:
+    runs-on: ubuntu-latest
 
-        - name: Mock - Login to Docker
-          run: echo "Docker login"
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-        - name: Mock - Build Docker Image
-          run : echo "Docker build"
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-        - name: Mock - Push image to ECR
-          id : build
-          run : echo "Docker push"
+      - name: Build Docker Image
+        run: |
+          docker build -t agrim017/agrim-mlops:latest .
 
-    mock-deploy:
-      needs: mock-build
-      runs-on: ubuntu-latest
-      steps:
-        - name: Mock - SSH into EC2 and redeploy
-          run: |
-            echo "docker pull house-preiction-model"
-            echo "docker stop"
-            echo "docker rm"
-            echo "docker run"
-            echo "Public ip : 56.7.7.7:8000"
+      - name: Push Docker Image
+        run: |
+          docker push agrim017/agrim-mlops:latest
+
+
+  deploy-to-ec2:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/mlops
+            docker compose pull
+            docker compose up -d
+            docker ps
